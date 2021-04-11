@@ -5,6 +5,7 @@ import time
 import unittest
 
 from selenium import webdriver
+from selenium.webdriver import DesiredCapabilities
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 
@@ -21,8 +22,6 @@ class ISelenium(unittest.TestCase):
         self.driver.quit()
 
     def setUp(self):
-        config = self.get_config()
-
         # 控制是否采用无界面形式运行自动化测试
         try:
             using_headless = os.environ["using_headless"]
@@ -35,8 +34,13 @@ class ISelenium(unittest.TestCase):
             print('使用无界面方式运行')
             chrome_options.add_argument("--headless")
 
-        self.driver = webdriver.Chrome(executable_path=config.get('driver', 'chrome_driver'),
-                                       options=chrome_options)
+        capabilities = DesiredCapabilities.CHROME.copy()
+        # capabilities['platform'] = "LINUX"  # 指定操作系统
+        # capabilities['version'] = "10"  # 指定操作系统版本
+        self.driver = webdriver.Remote(
+            command_executor='http://106.75.190.11:5001/wd/hub',
+            desired_capabilities=capabilities,
+            options=chrome_options)
 
     @allure.story('Test key word 今日头条')
     def test_webui_1(self):
